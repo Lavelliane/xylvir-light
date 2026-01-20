@@ -165,6 +165,9 @@ export default function Home() {
   - Prisma ORM with connection pooling
   - Custom Prisma Client output location (`lib/generated/prisma`)
   - Singleton pattern for Prisma client
+- **Async Operations**:
+  - Use `better-all` for parallel async operations with dependencies
+  - Automatic optimization over manual `Promise.all`
 - **Route Structure**: 
   - Routes in `server/routes/`
   - Each route module exports a Hono router
@@ -496,6 +499,7 @@ Or let the pre-commit hook handle it automatically!
 - **Hono**: Fast web framework for API routes
 - **Better Auth**: Modern authentication library
 - **Prisma**: Type-safe database ORM
+- **[better-all](https://github.com/shuding/better-all)**: Optimized Promise.all with automatic dependency resolution
 - **Tailwind CSS v4**: Utility-first CSS framework
 - **shadcn/ui**: High-quality React components (Radix UI)
 - **Zod**: TypeScript-first schema validation
@@ -507,6 +511,88 @@ Or let the pre-commit hook handle it automatically!
 - **lint-staged**: Run linters on staged files
 - **Commitlint**: Enforce conventional commit messages
 - **Commitizen**: Interactive commit message tool
+
+## 🎯 Performance Optimization with better-all
+
+This project uses **[better-all](https://github.com/shuding/better-all)** for automatic parallelization of async operations with dependencies.
+
+### Why better-all?
+
+Traditional `Promise.all` can be inefficient when tasks have dependencies. `better-all` automatically optimizes execution while maintaining readability.
+
+**Traditional approach (inefficient):**
+```typescript
+// Sequential execution - 20 seconds total
+const [user, posts] = await Promise.all([getUser(), getPosts()]) // 10s
+const comments = await getComments(user.id)                       // 10s
+```
+
+**With better-all (optimized):**
+```typescript
+import { all } from 'better-all'
+
+// Automatic parallelization - 11 seconds total
+const { user, posts, comments } = await all({
+  async user() { return getUser() },                    // 1s
+  async posts() { return getPosts() },                  // 10s
+  async comments() { return getComments(await this.$.user.id) } // 10s (runs in parallel with posts)
+})
+```
+
+### Usage Examples
+
+**Fetching user data with dependencies:**
+```typescript
+import { all } from 'better-all'
+
+const { user, profile, posts, stats } = await all({
+  async user() {
+    return await prisma.user.findUnique({ where: { id: userId } })
+  },
+  async profile() {
+    const user = await this.$.user
+    return await prisma.profile.findUnique({ where: { userId: user.id } })
+  },
+  async posts() {
+    const user = await this.$.user
+    return await prisma.post.findMany({ where: { authorId: user.id } })
+  },
+  async stats() {
+    const posts = await this.$.posts
+    return { postCount: posts.length, totalViews: posts.reduce((sum, p) => sum + p.views, 0) }
+  }
+})
+// user runs first, then profile and posts run in parallel, then stats uses posts
+```
+
+**API route optimization:**
+```typescript
+import { all } from 'better-all'
+import { Hono } from 'hono'
+
+const app = new Hono()
+
+app.get('/dashboard/:userId', async (c) => {
+  const userId = c.req.param('userId')
+  
+  const data = await all({
+    async user() { return fetchUser(userId) },
+    async settings() { return fetchSettings(userId) },
+    async activities() {
+      const user = await this.$.user
+      return fetchActivities(user.id)
+    },
+    async notifications() {
+      const user = await this.$.user
+      return fetchNotifications(user.id)
+    }
+  })
+  
+  return c.json(data)
+})
+```
+
+See the [better-all documentation](https://github.com/shuding/better-all) for more examples and features.
 
 ## 📋 Quick Reference
 
