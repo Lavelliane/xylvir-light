@@ -594,6 +594,3 @@ pnpm db:generate
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [shadcn/ui Documentation](https://ui.shadcn.com/)
 
-## 📄 License
-
-[Your License Here]
