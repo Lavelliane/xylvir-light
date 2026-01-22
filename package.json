@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/xylvir-light"
+    "url": "https://github.com/Lavelliane/xylvir-light"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/xylvir-light/issues"
+    "url": "https://github.com/Lavelliane/xylvir-light/issues"
   },
-  "homepage": "https://github.com/yourusername/xylvir-light#readme",
+  "homepage": "https://github.com/Lavelliane/xylvir-light#readme",
   "keywords": [
     "nextjs",
     "starter",
