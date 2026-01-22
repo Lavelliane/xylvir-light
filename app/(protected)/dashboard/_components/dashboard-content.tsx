@@ -18,24 +18,7 @@ export function DashboardContent() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
-            <ListTodo className="size-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-2">
-              <Button asChild className="justify-start">
-                <Link href="/dashboard/todos">
-                  <CheckCircle2 className="mr-2 size-4" />
-                  View All Tasks
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="justify-start">
-                <Link href="/dashboard/todos">
-                  <Plus className="mr-2 size-4" />
-                  Add New Task
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
         </Card>
 
         <Card>
