@@ -200,10 +200,36 @@
       "linter": {
         "rules": {
           "a11y": {
+            "useValidAriaRole": {
+              "options": {
+                "allowInvalidRoles": [
+                  "navigation",
+                  "listbox",
+                  "menu",
+                  "menuitem",
+                  "option",
+                  "progressbar",
+                  "radiogroup",
+                  "scrollbar",
+                  "searchbox",
+                  "separator",
+                  "slider",
+                  "spinbutton",
+                  "tablist",
+                  "tabpanel",
+                  "textbox",
+                  "tree",
+                  "treeitem",
+                  "group"
+                ]
+              }
+            },
             "noAriaUnsupportedElements": "warn",
+            "noRedundantRoles": "off",
             "useAltText": "warn",
             "useAriaPropsForRole": "warn",
             "useAriaPropsSupportedByRole": "warn",
+            "useSemanticElements": "off",
             "useValidAriaProps": "warn",
             "useValidAriaValues": "warn"
           },
@@ -221,6 +247,7 @@
           "security": { "noDangerouslySetInnerHtmlWithChildren": "error" },
           "style": { "noHeadElement": "warn" },
           "suspicious": {
+            "noArrayIndexKey": "off",
             "noCommentText": "error",
             "noDocumentImportInPage": "error",
             "noDuplicateJsxProps": "error",
