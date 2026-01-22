@@ -1,11 +1,13 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";
+import { captureException } from "@/lib/sentry";
 import { logger } from "@/server/services/logger.service";
 
 /**
  * Global error handler for Hono app
  * Handles HTTPException, Zod validation errors, and generic errors
+ * Integrates with Sentry for error tracking
  */
 export function errorHandler(err: Error, c: Context) {
   const method = c.req.method;
@@ -14,6 +16,16 @@ export function errorHandler(err: Error, c: Context) {
   // Handle HTTPException (our custom errors)
   if (err instanceof HTTPException) {
     logger.apiError(method, path, err.status, err.message);
+
+    // Only capture 5xx errors to Sentry (not client errors)
+    if (err.status >= 500) {
+      captureException(err, {
+        method,
+        path,
+        status: err.status,
+      });
+    }
+
     return c.json(
       {
         error: err.message,
@@ -40,8 +52,14 @@ export function errorHandler(err: Error, c: Context) {
     );
   }
 
-  // Handle generic errors
+  // Handle generic errors - always capture to Sentry
   logger.apiError(method, path, 500, err);
+  captureException(err, {
+    method,
+    path,
+    status: 500,
+  });
+
   return c.json(
     {
       error: err.message || "Internal server error",
