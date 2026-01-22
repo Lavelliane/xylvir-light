@@ -36,7 +36,7 @@ jobs:
         run: pnpm db:generate
 
       - name: Biome check
-        run: pnpm check --no-errors-on-unmatched
+        run: pnpm biome check --no-errors-on-unmatched .
 
       - name: Type check
         run: pnpm typecheck
