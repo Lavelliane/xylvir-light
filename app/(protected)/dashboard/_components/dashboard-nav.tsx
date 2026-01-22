@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, ListTodo, LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/todos", label: "Todos", icon: ListTodo },
-];
+const navItems = [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }];
 
 export function DashboardNav() {
   const pathname = usePathname();
