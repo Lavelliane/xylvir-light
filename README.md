@@ -12,7 +12,7 @@
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript (strict mode)
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: PostgreSQL with Drizzle ORM
 - **Authentication**: Better Auth
 - **API**: Hono
 - **Styling**: Tailwind CSS v4
@@ -81,7 +81,6 @@ pnpm db:migrate
 ```
 
 This will:
-- Generate Prisma Client
 - Apply database migrations
 - Create the necessary tables (User, Session, Account, Verification)
 
@@ -107,16 +106,16 @@ xylvir-light/
 ├── env/                    # Environment variable schemas
 │   ├── client.ts          # Client-side env vars
 │   └── server.ts          # Server-side env vars
+├── db/                     # Database configuration
+│   ├── schema/            # Drizzle schema definitions
+│   ├── migrations/        # Database migrations
+│   └── index.ts           # Drizzle database client
 ├── lib/                    # Shared utilities and libraries
 │   ├── auth/              # Better Auth configuration
-│   ├── generated/         # Generated Prisma Client
-│   ├── prisma.ts          # Prisma client singleton
 │   └── utils.ts           # Utility functions
 ├── server/                 # Backend API routes
 │   └── routes/            # Hono route handlers
 │       └── auth/          # Authentication routes
-├── prisma/                 # Prisma schema and migrations
-│   └── schema.prisma      # Database schema
 └── docker-compose.yml      # PostgreSQL container config
 ```
 
@@ -160,11 +159,11 @@ export default function Home() {
 - **Type Safety**: 
   - Zod schemas for validation
   - Type-safe environment variables
-  - Prisma types for database operations
+  - Drizzle types for database operations
 - **Database**: 
-  - Prisma ORM with connection pooling
-  - Custom Prisma Client output location (`lib/generated/prisma`)
-  - Singleton pattern for Prisma client
+  - Drizzle ORM with PostgreSQL connection pooling
+  - Schema definitions in `db/schema/`
+  - Singleton pattern for database client
 - **Async Operations**:
   - Use `better-all` for parallel async operations with dependencies
   - Automatic optimization over manual `Promise.all`
@@ -251,38 +250,44 @@ const session = await auth.api.getSession({ headers: request.headers })
 
 ## 🗄️ Database
 
-### Prisma Commands
+### Drizzle Commands
 
 ```bash
-# Generate Prisma Client
+# Generate migration files from schema changes
 pnpm db:generate
 
-# Create and apply migrations
+# Apply migrations to database
 pnpm db:migrate
 
-# Open Prisma Studio (database GUI)
-pnpm db:studio
+# Push schema changes directly (dev only)
+pnpm db:push
 
-# Run Prisma in development mode (watch mode)
-pnpm db:run
+# Open Drizzle Studio (database GUI)
+pnpm db:studio
 ```
 
 ### Database Schema
 
-The schema includes:
+The schema is defined in `db/schema/` using Drizzle ORM and includes:
 - **User**: User accounts with email, name, and profile image
 - **Session**: User sessions with token and metadata
 - **Account**: OAuth and email/password accounts
 - **Verification**: Email verification tokens
 
-### Using Prisma
+### Using Drizzle
 
 ```typescript
-import prisma from "@/lib/prisma"
+import { db } from "@/db"
+import { users, sessions } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
 // Query example
-const users = await prisma.user.findMany({
-  include: {
+const allUsers = await db.select().from(users)
+
+// Query with relations
+const userWithSessions = await db.query.users.findFirst({
+  where: eq(users.id, userId),
+  with: {
     sessions: true,
   },
 })
@@ -375,10 +380,10 @@ pnpm lint             # Lint code with Biome
 pnpm lint:fix         # Fix linting errors
 
 # Database
-pnpm db:generate      # Generate Prisma Client
-pnpm db:migrate       # Run migrations
-pnpm db:studio        # Open Prisma Studio
-pnpm db:run           # Prisma dev mode
+pnpm db:generate      # Generate migration files
+pnpm db:migrate      # Apply migrations
+pnpm db:push         # Push schema changes (dev)
+pnpm db:studio       # Open Drizzle Studio
 
 # Git & Commits
 pnpm commit           # Interactive conventional commit tool
@@ -457,7 +462,8 @@ git commit --no-verify -m "emergency fix"
 - **`tsconfig.json`**: TypeScript configuration with path aliases
 - **`components.json`**: shadcn/ui configuration
 - **`docker-compose.yml`**: PostgreSQL container configuration
-- **`prisma/schema.prisma`**: Database schema definition
+- **`drizzle.config.ts`**: Drizzle Kit configuration
+- **`db/schema/`**: Database schema definitions
 - **`biome.json`**: Biome formatter and linter configuration
 - **`commitlint.config.js`**: Commit message linting rules
 - **`.lintstagedrc.js`**: Pre-commit staged files configuration
@@ -498,7 +504,7 @@ Or let the pre-commit hook handle it automatically!
 - **Next.js 16**: React framework with App Router
 - **Hono**: Fast web framework for API routes
 - **Better Auth**: Modern authentication library
-- **Prisma**: Type-safe database ORM
+- **Drizzle ORM**: Type-safe SQL query builder
 - **[better-all](https://github.com/shuding/better-all)**: Optimized Promise.all with automatic dependency resolution
 - **Tailwind CSS v4**: Utility-first CSS framework
 - **shadcn/ui**: High-quality React components (Radix UI)
@@ -506,6 +512,7 @@ Or let the pre-commit hook handle it automatically!
 - **@t3-oss/env-nextjs**: Type-safe environment variables
 
 ### Development Tools
+- **Drizzle Kit**: Database migrations and schema management
 - **Biome**: Fast formatter and linter (~35x faster than Prettier)
 - **Husky**: Git hooks manager
 - **lint-staged**: Run linters on staged files
@@ -544,18 +551,21 @@ const { user, posts, comments } = await all({
 **Fetching user data with dependencies:**
 ```typescript
 import { all } from 'better-all'
+import { db } from '@/db'
+import { users, profiles, posts } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
-const { user, profile, posts, stats } = await all({
+const { user, profile, posts: userPosts, stats } = await all({
   async user() {
-    return await prisma.user.findUnique({ where: { id: userId } })
+    return await db.query.users.findFirst({ where: eq(users.id, userId) })
   },
   async profile() {
     const user = await this.$.user
-    return await prisma.profile.findUnique({ where: { userId: user.id } })
+    return await db.query.profiles.findFirst({ where: eq(profiles.userId, user.id) })
   },
   async posts() {
     const user = await this.$.user
-    return await prisma.post.findMany({ where: { authorId: user.id } })
+    return await db.select().from(posts).where(eq(posts.authorId, user.id))
   },
   async stats() {
     const posts = await this.$.posts
@@ -604,8 +614,8 @@ See the [better-all documentation](https://github.com/shuding/better-all) for mo
 | `pnpm check` | Format, lint, and organize imports |
 | `pnpm commit` | Interactive conventional commit |
 | `docker-compose up -d` | Start PostgreSQL database |
-| `pnpm db:migrate` | Run database migrations |
-| `pnpm db:studio` | Open Prisma Studio |
+| `pnpm db:migrate` | Apply database migrations |
+| `pnpm db:studio` | Open Drizzle Studio |
 
 ### Commit Message Format
 
@@ -630,10 +640,11 @@ xylvir-light/
 │   └── ui/               # shadcn/ui components
 ├── server/                # Backend code
 │   └── routes/           # Hono API route handlers
+├── db/                    # Database configuration
+│   ├── schema/           # Drizzle schema definitions
+│   └── migrations/       # Database migrations
 ├── lib/                   # Shared utilities
-│   ├── auth/             # Better Auth config
-│   └── prisma.ts         # Database client
-├── prisma/                # Database schema & migrations
+│   └── auth/             # Better Auth config
 ├── env/                   # Environment variable schemas
 ├── biome.json             # Biome config
 ├── commitlint.config.js   # Commit message rules
@@ -653,10 +664,11 @@ docker stop <container-name>
 sudo lsof -i :5432 | awk 'NR>1 {print $2}' | xargs -r sudo kill -9
 ```
 
-### Prisma Client not found
+### Database client not initialized
 
 ```bash
-pnpm db:generate
+# Ensure migrations are applied
+pnpm db:migrate
 ```
 
 ### Environment variables not working
@@ -676,7 +688,8 @@ pnpm db:generate
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Hono Documentation](https://hono.dev/)
 - [Better Auth Documentation](https://www.better-auth.com/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)
+- [Drizzle Kit Documentation](https://orm.drizzle.team/kit-docs/overview)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [shadcn/ui Documentation](https://ui.shadcn.com/)
 
