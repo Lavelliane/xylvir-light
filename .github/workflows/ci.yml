@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
+      - name: Generate Drizzle types
         run: pnpm db:generate
 
       - name: Biome check
@@ -62,7 +62,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
+      - name: Generate Drizzle types
         run: pnpm db:generate
 
       - name: Run tests
@@ -90,7 +90,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
+      - name: Generate Drizzle types
         run: pnpm db:generate
 
       - name: Build
