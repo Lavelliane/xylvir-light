@@ -1,6 +1,6 @@
 import type * as React from "react";
 
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -38,11 +38,11 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardDescription({ className, ...props }: React.ComponentProps<"small">) {
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <small
+    <div
       data-slot="card-description"
-      className={cn("text-muted-foreground", className)}
+      className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
   );
