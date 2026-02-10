@@ -91,7 +91,10 @@ function DrawerTitle({ className, ...props }: React.ComponentProps<typeof Drawer
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-foreground font-semibold", className)}
+      className={cn(
+        "text-foreground text-[clamp(1rem,1.5vw,1.125rem)] font-semibold leading-[1.4]",
+        className,
+      )}
       {...props}
     />
   );
@@ -104,7 +107,10 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(
+        "text-muted-foreground text-[clamp(0.75rem,1.2vw,0.8125rem)] leading-normal",
+        className,
+      )}
       {...props}
     />
   );

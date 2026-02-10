@@ -75,9 +75,9 @@ export function AuthForm() {
     return (
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10">
             <svg
-              className="size-8 text-emerald-600 dark:text-emerald-400"
+              className="size-8 text-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -92,12 +92,12 @@ export function AuthForm() {
               />
             </svg>
           </div>
-          <CardTitle className="text-2xl">Welcome back!</CardTitle>
+          <CardTitle>Welcome back!</CardTitle>
           <CardDescription className="text-base">You are signed in as</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="rounded-lg bg-muted/50 p-4 text-center">
-            <p className="font-semibold text-lg">{session.user.name}</p>
+            <h5>{session.user.name}</h5>
             <p className="text-muted-foreground">{session.user.email}</p>
           </div>
           <Button onClick={handleSignOut} disabled={isLoading} variant="outline" className="w-full">
@@ -119,8 +119,8 @@ export function AuthForm() {
         </CardHeader>
         <CardContent>
           {error && (
-            <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
+            <div role="alert" className="mb-4 rounded-lg bg-destructive/10 p-3 text-destructive">
+              <small>{error}</small>
             </div>
           )}
 

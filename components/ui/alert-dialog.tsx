@@ -79,11 +79,9 @@ function AlertDialogTitle({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return (
-    <AlertDialogPrimitive.Title
-      data-slot="alert-dialog-title"
-      className={cn("text-lg font-semibold", className)}
-      {...props}
-    />
+    <AlertDialogPrimitive.Title asChild data-slot="alert-dialog-title" {...props}>
+      <h3 className={cn("font-semibold leading-[1.4]", className)}>{props.children}</h3>
+    </AlertDialogPrimitive.Title>
   );
 }
 
@@ -94,7 +92,10 @@ function AlertDialogDescription({
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(
+        "text-muted-foreground text-[clamp(0.75rem,1.2vw,0.8125rem)] leading-normal",
+        className,
+      )}
       {...props}
     />
   );

@@ -9,14 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:hover:bg-destructive/80 dark:focus-visible:ring-destructive/40",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        inverted: "bg-background text-foreground hover:bg-foreground hover:text-background",
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-accent",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 dark:hover:bg-accent dark:hover:text-accent-foreground",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        inverted:
+          "bg-background text-foreground hover:bg-foreground hover:text-background data-[state=open]:bg-foreground data-[state=open]:text-background",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -29,7 +31,7 @@ const buttonVariants = cva(
         "icon-sm": "size-8",
         "icon-lg": "size-10",
         "icon-xl": "size-12",
-        "icon-2xl": "size-16",
+        "icon-2xl": "size-16 rounded-none",
       },
     },
     defaultVariants: {
